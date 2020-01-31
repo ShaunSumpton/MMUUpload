@@ -96,6 +96,38 @@ namespace MMUupload
 
             ws.Range["R2:R" + LastRow].Value = "2";
 
+            for (int i = 2; i < LastRow; i++)
+            {
+
+                string temp = ws.Range["D" + i].Value;
+                int iTemp = temp.Length;
+
+                if (iTemp > 7)
+                {
+                    iTemp = 8;
+
+                }
+
+
+                // build perl
+
+                string Sname = temp.Substring(0, iTemp);
+
+                Sname = Sname.Replace("@", "").Replace(" ", "").Replace("/", "").Replace(".", "").Replace(",", "").Replace("'", "")
+                .Replace("&", "").Replace("(", "").Replace(")", "").Replace("\"", "").Replace("-", "").Replace(@"\", "").Replace("+", "");
+
+                char l1 = RandomLetter.GetLetter();
+                int n1 = RandomNumber.GetNumber();
+                char l2 = RandomLetter.GetLetter();
+                int n2 = RandomNumber.GetNumber();
+                char l3 = RandomLetter.GetLetter();
+                int n3 = RandomNumber.GetNumber();
+
+                ws.Range["T" + i].Value =Sname +  l1 + n1 + l2 + n2 + l3 + n3;
+
+            }
+
+
             // find what was the last live send and populate column with next increment of number //
             //create purls using surname and random 6 charecter code "Sumpton9Z9Z9Z" //
 
@@ -117,7 +149,7 @@ namespace MMUupload
                 // This method returns a random lowercase letter.
                 // ... Between 'a' and 'z' inclusize.
                 int num = _random.Next(0, 26); // Zero to 25
-                char let = (char)('a' + num);
+                char let = (char)('A' + num);
                 return let;
             }
         }
