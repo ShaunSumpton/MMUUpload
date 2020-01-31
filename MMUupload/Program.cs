@@ -78,7 +78,7 @@ namespace MMUupload
             r2Rng.EntireColumn.Insert(XlInsertShiftDirection.xlShiftToRight,
                     XlInsertFormatOrigin.xlFormatFromRightOrBelow);
             ws.Range["R1"].Value = "VISIT_DAY";
-            
+
 
             ws.Range["V1"].Value = "SPARE1";
             ws.Range["W1"].Value = "SPARE2";
@@ -98,7 +98,7 @@ namespace MMUupload
 
             // find what was the last live send and populate column with next increment of number //
             //create purls using surname and random 6 charecter code "Sumpton9Z9Z9Z" //
-            
+
 
 
             exceldoc.SaveAs(@"C:\Users\Sumptons\Desktop\testMMU.xlsx", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing,
@@ -108,6 +108,37 @@ namespace MMUupload
             exceldoc.Close();
 
         }
+
+        static class RandomLetter
+        {
+            static Random _random = new Random();
+            public static char GetLetter()
+            {
+                // This method returns a random lowercase letter.
+                // ... Between 'a' and 'z' inclusize.
+                int num = _random.Next(0, 26); // Zero to 25
+                char let = (char)('a' + num);
+                return let;
+            }
+        }
+
+        static class RandomNumber
+        {
+            // ... Create new Random object.
+            static Random random = new Random();
+
+            public static int GetNumber()
+            {
+                // ... Get 3 random numbers.
+                //     These are always 5, 6, 7, 8 or 9.
+                int num = random.Next(1, 10);
+                return num;
+            }
+
+
+        }
+
     }
 }
+
 //REPLICATE(FORENAME + ' ',15000/len(forename)) as BACKGROUND
