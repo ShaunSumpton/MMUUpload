@@ -60,7 +60,7 @@ namespace MMUupload
             Range r1Rng = ws.Range["R1"];
             r1Rng.EntireColumn.Insert(XlInsertShiftDirection.xlShiftToRight,
                     XlInsertFormatOrigin.xlFormatFromRightOrBelow);
-            ws.Range["R1"].Value = "SUBMIT_DATE";
+            ws.Range["R1"].Value = "SUBMIT_DATE"; 
 
             Range r2Rng = ws.Range["R1"];
             r2Rng.EntireColumn.Insert(XlInsertShiftDirection.xlShiftToRight,
@@ -122,7 +122,7 @@ namespace MMUupload
             SqlDataReader dataReader;
             SqlCommand command;
 
-            string sql = "SELECT TOP 52 * FROM mmu_offer_guide_testing ORDER BY AG_SEQ DESC";
+            string sql = "SELECT TOP 52 * FROM mmu_offer_guide ORDER BY AG_SEQ DESC";
             SqlConnection conn = new SqlConnection(
                  new SqlConnectionStringBuilder()
                  {
@@ -154,7 +154,7 @@ namespace MMUupload
 
             SqlDataReader dataReader1;
 
-            string sql1 = "select distinct [SPARE2] from mmu_offer_guide_testing order by spare2 DESC";
+            string sql1 = "select distinct [SPARE2] from mmu_offer_guide order by spare2 DESC";
             command = new SqlCommand(sql1, conn);
             dataReader1 = command.ExecuteReader();
             command.Dispose();
@@ -199,18 +199,14 @@ namespace MMUupload
 
             SqlBulkCopy objbulk = new SqlBulkCopy(conn);
 
-            objbulk.DestinationTableName = "mmu_offer_guide_testing";
+            objbulk.DestinationTableName = "mmu_offer_guide";
             //Mapping Table column    
-            //objbulk.ColumnMappings.Add("[AG_SEQ]", "AG_SEQ");
-            //objbulk.ColumnMappings.Add("[MMU_ID]", "MMU_ID");
-            //objbulk.ColumnMappings.Add("[Email]", "Email");
-            //objbulk.ColumnMappings.Add("[Mobile]", "Mob");
 
             conn.Open(); //Open DataBase conection  
 
             objbulk.WriteToServer(Exceldt); //inserting Datatable Records to DataBase con.Close(); //Close DataBase conection  
 
-            // MessageBox.Show("Data has been Imported successfully.", "Imported", MessageBoxButtons.OK, MessageBoxIcon.Information);
+           Console.WriteLine("Data has been Imported successfully.", "Imported");
 
 
 
@@ -224,24 +220,24 @@ namespace MMUupload
 
             //}
 
-            dataReader.Close();
+            dataReader.Close(); // close data readers
             dataReader1.Close();
-            command.Dispose();
+            command.Dispose(); // dispose of used command
 
 
-            string sql2 = "SELECT distinct [MICROSITE] FROM[AG].[dbo].[mmu_offer_guide_testing] where SPARE2 = 'LIVESEND" + LiveSend + "'";
+            string sql2 = "SELECT distinct [MICROSITE] FROM[AG].[dbo].[mmu_offer_guide] where SPARE2 = 'LIVESEND" + LiveSend + "'";
             command = new SqlCommand(sql2, conn);
-            dataReader1 = command.ExecuteReader();
+            dataReader1 = command.ExecuteReader(); //get distinct microsites for random25
             command.Dispose();
 
             List<string> MSlist = (from IDataRecord r in dataReader1
-                                   select (string)r["MICROSITE"]).ToList();
-            dataReader1.Close();
+                                   select (string)r["MICROSITE"]).ToList(); // add to list
+            dataReader1.Close(); // close data reader
 
-            foreach (string i in MSlist)
+            foreach (string i in MSlist) // for each microsite in list set the top 2 as random25
             {
 
-                sql2 = "update TOP (2) mmu_offer_guide_testing set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] =" + "'" + i + "'";
+                sql2 = "update TOP (2) mmu_offer_guide set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] =" + "'" + i + "'";
                 command = new SqlCommand(sql2, conn);
                 dataReader1 = command.ExecuteReader();
                 dataReader1.Close();
@@ -250,25 +246,41 @@ namespace MMUupload
 
             // count records with random25 and if under 25 add more and non uk
 
-            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide_testing] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
+            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
             command = new SqlCommand(sql2, conn);
             Int32 count = (Int32)command.ExecuteScalar();
+            command.Dispose();
 
-            if ( count < 25)
+            if ( count < 25) // if count is less than 25 add in extra records to "No Microsite"
             {
-                do
-                {
-
-
-
-
-                    count++;
-                } while (count <= 25);
-
+                int missing = 25 - count;
+                    sql2 = "update TOP" +  "("+ (missing + 2) + ") mmu_offer_guide set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] = 'No Microsite'";
+                    command = new SqlCommand(sql2, conn);
+                    dataReader1 = command.ExecuteReader();
+                    dataReader1.Close();
+                command.Dispose();
             }
 
-            //dataReader1 = command.ExecuteReader();
+            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
+            command = new SqlCommand(sql2, conn);
+            count = (Int32)command.ExecuteScalar();
 
+            if (count >= 25)
+            {
+                int more = (count - 25) + 1;
+                sql2 = "update TOP" + "(" + (more) + ") mmu_offer_guide set[SPARE6] = '' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] = 'No Microsite'";
+                command = new SqlCommand(sql2, conn);
+                dataReader1 = command.ExecuteReader();
+                dataReader1.Close();
+
+
+              
+                sql2 = "update TOP" + "(" + (1) + ") mmu_offer_guide set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [UKORNONUK] = 'Non-UK'";
+                command = new SqlCommand(sql2, conn);
+                dataReader1 = command.ExecuteReader();
+                dataReader1.Close();
+
+            }
            
 
             // if over or exact delete as needed and include non uk
