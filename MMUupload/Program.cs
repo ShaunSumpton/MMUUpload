@@ -8,6 +8,7 @@ using System.Data.OleDb;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 
 namespace MMUupload
 {
@@ -37,12 +38,14 @@ namespace MMUupload
             _ = ws.UsedRange.Columns.Count;
             Range last = ws.Cells.SpecialCells(XlCellType.xlCellTypeLastCell, Type.Missing);
             _ = ws.get_Range("A1", last);
-            Range uknot = ws.Columns["Q"]; // column to count UK or NON UK sends
+            Range uknot = ws.Columns["P"]; // column to count UK or NON UK sends
             _ = last.Row;
 
             var UK = application.WorksheetFunction.CountIf(uknot, "UK"); // count uk sends
             var NONUK = application.WorksheetFunction.CountIf(uknot, "Non-UK"); // count nonuk sends
 
+            Console.WriteLine("UK Records: " + UK);
+            Console.WriteLine("Non UK Records: " + NONUK);
 
 
             // create and set columns headers //
@@ -79,13 +82,12 @@ namespace MMUupload
             ws.Range["AD1"].Value = "SPARE9";
             ws.Range["AE1"].Value = "SPARE10";
             //ws.Range["AF1"].Value = "BACKGROUND";
-            ws.Range["U1"].Value = "UKORNONUK";
-
+           // ws.Range["U1"].Value = "MICROSITE";
+            ws.Range["Q1"].Value = "UKORNONUK";
             // fill columns //
 
             ws.Range["R2:R" + LastRow].Value = "2";
-
-            for (int i = 2; i < LastRow + 1; i++)
+                        for (int i = 2; i < LastRow + 1; i++)
             {
 
                 string temp = ws.Range["D" + i].Value;
@@ -168,9 +170,26 @@ namespace MMUupload
             dataReader1.Close();
             ws.Range["W2:W" + LastRow].Value = "LIVESEND" + LiveSend;
 
-            exceldoc.SaveAs(@"C:\Users\Sumptons\Desktop\testMMU.xlsx", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing,
-                        Type.Missing, Type.Missing);
+            var sheet = exceldoc.Worksheets.Item[1]; 
+            sheet.Name = "Sheet1";
 
+            Range copyRange = ws.Range["U:U"];
+            Range insertRange = ws.Range["Q:Q"];
+            insertRange.Insert(XlInsertShiftDirection.xlShiftToRight, copyRange.Cut());
+
+            copyRange = ws.Range["R:R"];
+            insertRange = ws.Range["V:V"];
+            insertRange.Insert(XlInsertShiftDirection.xlShiftToRight, copyRange.Cut());
+
+
+            if (File.Exists(@"\\6.1.1.60\data\MMU\FILES\MMU.xls"))
+            {
+                File.Delete(@"\\6.1.1.60\data\MMU\FILES\MMU.xls");
+            }
+
+            exceldoc.SaveAs(@"\\6.1.1.60\data\MMU\FILES\MMU.xls", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing,
+                        Type.Missing, Type.Missing);
+            Console.WriteLine("File Saved");
             exceldoc.Close(false);
             conn.Close();
 
@@ -179,8 +198,10 @@ namespace MMUupload
                 WorkerReportsProgress = true,
                 WorkerSupportsCancellation = true
             };
+           //Microsoft.Jet.OLEDB.4.0
+            //Microsoft.ACE.OLEDB.12.0
 
-            string constr = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\Sumptons\Desktop\testMMU.xlsx;Extended Properties=""Excel 12.0 Xml;HDR=YES;IMEX=1""");
+            string constr = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\\6.1.1.60\data\MMU\FILES\MMU.xls;Extended Properties=""Excel 12.0 xml;HDR=YES;IMEX=1""");
             OleDbConnection Econn = new OleDbConnection(constr);
 
             string Query = string.Format("Select * FROM [Sheet1$]");
@@ -199,8 +220,43 @@ namespace MMUupload
 
             SqlBulkCopy objbulk = new SqlBulkCopy(conn);
 
+            //objbulk.ColumnMappings.Add("AG_SEQ", "AG_SEQ");
+            //objbulk.ColumnMappings.Add("MMU_ID", "MMU_ID");
+            //objbulk.ColumnMappings.Add("FIRSTNAME", "FIRSTNAME");
+            //objbulk.ColumnMappings.Add("LASTNAME", "LASTNAME");
+            //objbulk.ColumnMappings.Add("AOS_CODE", "AOS_CODE");
+            //objbulk.ColumnMappings.Add("FULL_DESC", "FULL_DESC");
+            //objbulk.ColumnMappings.Add("FACULTY", "FACULTY");
+            //objbulk.ColumnMappings.Add("DEPARTMENT", "DEPARTMENT");
+            //objbulk.ColumnMappings.Add("EXT_EMAIL", "EXT_EMAIL");
+            //objbulk.ColumnMappings.Add("ADD_1", "ADD_1");
+            //objbulk.ColumnMappings.Add("ADD_2", "ADD_2");
+            //objbulk.ColumnMappings.Add("ADD_3", "ADD_3");
+            //objbulk.ColumnMappings.Add("ADD_4", "ADD_4");
+            //objbulk.ColumnMappings.Add("POST_CODE", "POST_CODE");
+            //objbulk.ColumnMappings.Add("OFFER", "OFFER");
+            //objbulk.ColumnMappings.Add("STAGE_DATE", "STAGE_DATE");
+            //objbulk.ColumnMappings.Add("MICROSITE", "MICROSITE");
+            //objbulk.ColumnMappings.Add("VISIT_DAY", "VISIT_DAY");
+            //objbulk.ColumnMappings.Add("SUBMIT_DATE", "SUBMIT_DATE");
+            //objbulk.ColumnMappings.Add("PURL", "PURL");
+            //objbulk.ColumnMappings.Add("UKORNONUK", "UKORNONUK");
+            //objbulk.ColumnMappings.Add("SPARE1", "SPARE1");
+            //objbulk.ColumnMappings.Add("SPARE2", "SPARE2");
+            //objbulk.ColumnMappings.Add("SPARE3", "SPARE3");
+            //objbulk.ColumnMappings.Add("SPARE4", "SPARE4");
+            //objbulk.ColumnMappings.Add("SPARE5", "SPARE5");
+            //objbulk.ColumnMappings.Add("SPARE6", "SPARE6");
+            //objbulk.ColumnMappings.Add("SPARE7", "SPARE7");
+            //objbulk.ColumnMappings.Add("SPARE8", "SPARE8");
+            //objbulk.ColumnMappings.Add("SPARE9", "SPARE9");
+            //objbulk.ColumnMappings.Add("SPARE10", "SPARE10");
+            
+
             objbulk.DestinationTableName = "mmu_offer_guide";
-            //Mapping Table column    
+            //Mapping Table column
+            
+
 
             conn.Open(); //Open DataBase conection  
 
@@ -251,6 +307,8 @@ namespace MMUupload
             Int32 count = (Int32)command.ExecuteScalar();
             command.Dispose();
 
+            Console.WriteLine("Random 25 number: " + count);
+
             if ( count < 25) // if count is less than 25 add in extra records to "No Microsite"
             {
                 int missing = 25 - count;
@@ -281,7 +339,15 @@ namespace MMUupload
                 dataReader1.Close();
 
             }
-           
+
+                 MailMessage mess = new MailMessage("s2@agnortheast.com", "s.sumpton@agnortheast.com; s.kent@agnortheast.com; a.granger@agnortheast.com",
+                "MMU Data Upload " + DateTime.Now.ToString("dd/MM/yyyy"),
+                "MMU Offer Guide Quantities <br /> <br />" + "Number of UK: " + UK + "<br />" + "Number of Non-UK: " + NONUK + "<br />" + "Data Uploaded" + "<br />" + "--------------------------------------");
+
+            mess.IsBodyHtml = true;
+            SmtpClient client = new SmtpClient("6.1.1.143");
+            client.Send(mess);
+
 
             // if over or exact delete as needed and include non uk
         }
