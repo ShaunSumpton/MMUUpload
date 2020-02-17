@@ -137,6 +137,13 @@ namespace MMUupload
 
             conn.Open();
 
+            string SqlClear = "UPDATE mmu_offer_guide SET SPARE6 = 'PROOFSENT' WHERE SPARE6 = 'RANDOM25'";
+            command = new SqlCommand(SqlClear, conn);
+            dataReader = command.ExecuteReader();
+            command.Dispose();
+            dataReader.Close();
+
+
             command = new SqlCommand(sql, conn);
             dataReader = command.ExecuteReader();
             //Create a new DataTable.
