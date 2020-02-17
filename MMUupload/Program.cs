@@ -124,7 +124,7 @@ namespace MMUupload
             SqlDataReader dataReader;
             SqlCommand command;
 
-            string sql = "SELECT TOP 52 * FROM mmu_offer_guide ORDER BY AG_SEQ DESC";
+            string sql = "SELECT TOP 52 * FROM mmu_offer_guide_testing ORDER BY AG_SEQ DESC";
             SqlConnection conn = new SqlConnection(
                  new SqlConnectionStringBuilder()
                  {
@@ -137,7 +137,7 @@ namespace MMUupload
 
             conn.Open();
 
-            string SqlClear = "UPDATE mmu_offer_guide SET SPARE6 = 'PROOFSENT' WHERE SPARE6 = 'RANDOM25'";
+            string SqlClear = "UPDATE mmu_offer_guide_testing SET SPARE6 = 'PROOFSENT' WHERE SPARE6 = 'RANDOM25'";
             command = new SqlCommand(SqlClear, conn);
             dataReader = command.ExecuteReader();
             command.Dispose();
@@ -163,7 +163,7 @@ namespace MMUupload
 
             SqlDataReader dataReader1;
 
-            string sql1 = "select distinct [SPARE2] from mmu_offer_guide order by spare2 DESC";
+            string sql1 = "select distinct [SPARE2] from mmu_offer_guide_testing order by spare2 DESC";
             command = new SqlCommand(sql1, conn);
             dataReader1 = command.ExecuteReader();
             command.Dispose();
@@ -260,7 +260,7 @@ namespace MMUupload
             //objbulk.ColumnMappings.Add("SPARE10", "SPARE10");
             
 
-            objbulk.DestinationTableName = "mmu_offer_guide";
+            objbulk.DestinationTableName = "mmu_offer_guide_testing";
             //Mapping Table column
             
 
@@ -288,7 +288,7 @@ namespace MMUupload
             command.Dispose(); // dispose of used command
 
 
-            string sql2 = "SELECT distinct [MICROSITE] FROM[AG].[dbo].[mmu_offer_guide] where SPARE2 = 'LIVESEND" + LiveSend + "'";
+            string sql2 = "SELECT distinct [MICROSITE] FROM[AG].[dbo].[mmu_offer_guide_testing] where SPARE2 = 'LIVESEND" + LiveSend + "'";
             command = new SqlCommand(sql2, conn);
             dataReader1 = command.ExecuteReader(); //get distinct microsites for random25
             command.Dispose();
@@ -300,7 +300,7 @@ namespace MMUupload
             foreach (string i in MSlist) // for each microsite in list set the top 2 as random25
             {
 
-                sql2 = "update TOP (2) mmu_offer_guide set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] =" + "'" + i + "'";
+                sql2 = "update TOP (2) mmu_offer_guide_testing set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] =" + "'" + i + "'";
                 command = new SqlCommand(sql2, conn);
                 dataReader1 = command.ExecuteReader();
                 dataReader1.Close();
@@ -309,7 +309,7 @@ namespace MMUupload
 
             // count records with random25 and if under 25 add more and non uk
 
-            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
+            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide_testing] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
             command = new SqlCommand(sql2, conn);
             Int32 count = (Int32)command.ExecuteScalar();
             command.Dispose();
@@ -319,42 +319,47 @@ namespace MMUupload
             if ( count < 25) // if count is less than 25 add in extra records to "No Microsite"
             {
                 int missing = 25 - count;
-                    sql2 = "update TOP" +  "("+ (missing + 2) + ") mmu_offer_guide set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] = 'No Microsite'";
+                    sql2 = "update TOP" +  "("+ (missing + 2) + ") mmu_offer_guide_testing set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] = 'No Microsite'";
                     command = new SqlCommand(sql2, conn);
                     dataReader1 = command.ExecuteReader();
                     dataReader1.Close();
                 command.Dispose();
             }
 
-            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
+            sql2 = "SELECT COUNT ([MICROSITE]) FROM[AG].[dbo].[mmu_offer_guide_testing] where SPARE2 = 'LIVESEND" + LiveSend + "' AND SPARE6 = 'RANDOM25'";
             command = new SqlCommand(sql2, conn);
             count = (Int32)command.ExecuteScalar();
 
             if (count >= 25)
             {
                 int more = (count - 25) + 1;
-                sql2 = "update TOP" + "(" + (more) + ") mmu_offer_guide set[SPARE6] = '' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] = 'No Microsite'";
+                sql2 = "update TOP" + "(" + (more) + ") mmu_offer_guide_testing set[SPARE6] = '' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [MICROSITE] = 'No Microsite'";
                 command = new SqlCommand(sql2, conn);
                 dataReader1 = command.ExecuteReader();
                 dataReader1.Close();
 
 
               
-                sql2 = "update TOP" + "(" + (1) + ") mmu_offer_guide set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [UKORNONUK] = 'Non-UK'";
+                sql2 = "update TOP" + "(" + (1) + ") mmu_offer_guide_testing set[SPARE6] = 'RANDOM25' where [SPARE2] = 'LIVESEND" + LiveSend + "'" + " And [UKORNONUK] = 'Non-UK'";
                 command = new SqlCommand(sql2, conn);
                 dataReader1 = command.ExecuteReader();
                 dataReader1.Close();
 
             }
 
-                 MailMessage mess = new MailMessage("s2@agnortheast.com", "s.sumpton@agnortheast.com; s.kent@agnortheast.com; a.granger@agnortheast.com",
-                "MMU Data Upload " + DateTime.Now.ToString("dd/MM/yyyy"),
-                "MMU Offer Guide Quantities <br /> <br />" + "Number of UK: " + UK + "<br />" + "Number of Non-UK: " + NONUK + "<br />" + "Data Uploaded" + "<br />" + "--------------------------------------");
+            MailMessage mess = new MailMessage();
+
+
+            mess.From = new MailAddress("s2@agnortheast.com");
+            mess.To.Add("S.Sumpton@agnortheast.com; S.Kent@agnortheast.com; A.Granger@agnortheast.com");
+            mess.Subject = "MMU Data Upload " + DateTime.Now.ToString("dd/MM/yyyy");
+            mess.Body = "MMU Offer Guide Quantities <br />" + "Number of UK: " + 1 + "<br /> Number of Non - UK: " + 1 + "<br /> --------------------------------------" + "<br /> Data Uploaded";
+
 
             mess.IsBodyHtml = true;
             SmtpClient client = new SmtpClient("6.1.1.143");
             client.Send(mess);
-
+            Console.WriteLine("Email Sent");
 
             // if over or exact delete as needed and include non uk
         }
