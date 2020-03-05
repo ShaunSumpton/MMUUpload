@@ -347,23 +347,23 @@ namespace MMUupload
 
             }
 
-            //MailMessage mess = new MailMessage();
+            MailMessage mess = new MailMessage();
 
 
-            //mess.From = new MailAddress("s2@agnortheast.com");
-            //mess.To.Add("S.Sumpton@agnortheast.com; S.Kent@agnortheast.com; A.Granger@agnortheast.com");
-            //mess.Subject = "MMU Data Upload " + DateTime.Now.ToString("dd/MM/yyyy");
-            //mess.Body = "MMU Offer Guide Quantities <br />" + "Number of UK: " + UK + "<br /> Number of Non - UK: " + NONUK + "<br /> --------------------------------------" + "<br /> Data Uploaded";
+            mess.From = new MailAddress("s2@agnortheast.com");
+            mess.To.Add("S.Sumpton@agnortheast.com; S.Kent@agnortheast.com; A.Granger@agnortheast.com");
+            mess.Subject = "MMU Data Upload " + DateTime.Now.ToString("dd/MM/yyyy");
+            mess.Body = "MMU Offer Guide Quantities <br />" + "Number of UK: " + UK + "<br /> Number of Non - UK: " + NONUK + "<br /> --------------------------------------" + "<br /> Data Uploaded";
 
 
-            //mess.IsBodyHtml = true;
-            //SmtpClient client = new SmtpClient("6.1.1.143");
-            //client.Send(mess);
-            //Console.WriteLine("Email Sent");
+            mess.IsBodyHtml = true;
+            SmtpClient client = new SmtpClient("6.1.1.143");
+            client.Send(mess);
+            Console.WriteLine("Email Sent"); 
 
             // if over or exact delete as needed and include non uk
         }
-     }
+    }
 
         class RandomLetter
         {
